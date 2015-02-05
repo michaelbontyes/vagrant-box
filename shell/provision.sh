@@ -12,6 +12,7 @@ APACHE_ROOT=/var/www/site
 
 # WORDPRESS SETTINGS
 WORDPRESS=1
+WORDPRESS_ROOT=/var/www/site
 
 sudo apt-get update
 
@@ -67,12 +68,12 @@ fi
 
 # WORDPRESS
 if [ "$WORDPRESS" = 1 ]; then
-	if [ ! -d /var/www/site/wp-admin ]; then
-		cd /var/www/site
-		wget http://wordpress.org/latest.tar.gz  
-		tar xvf latest.tar.gz 
-		mv wordpress/* ./  
-		rmdir ./wordpress/  
+	if [ ! -d "$WORDPRESS_ROOT/wp-admin" ]; then
+		cd $WORDPRESS_ROOT
+		wget http://wordpress.org/latest.tar.gz
+		tar xvf latest.tar.gz
+		mv wordpress/* ./
+		rmdir ./wordpress/
 		rm -f latest.tar.gz
 	fi
 fi
