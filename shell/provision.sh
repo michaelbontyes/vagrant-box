@@ -13,11 +13,12 @@ APACHE_ROOT=/var/www/site
 # WORDPRESS SETTINGS
 WORDPRESS=1
 WORDPRESS_ROOT=/var/www/site
+WORDPRESS_ADMIN=/var/www/site/wp-admin
 
-sudo apt-get update
+sudo apt-get update -qq
 
 # MYSQL
-if [ "$MYSQL" = 1 ]; then
+if [ $MYSQL = 1 ]; then
 	sudo debconf-set-selections <<< "mysql-server-5.5 mysql-server/root_password password $MYSQL_PASS"
 	sudo debconf-set-selections <<< "mysql-server-5.5 mysql-server/root_password_again password $MYSQL_PASS"
 	
@@ -33,7 +34,7 @@ if [ "$MYSQL" = 1 ]; then
 fi
 
 # APACHE
-if [ "$APACHE" = 1 ]; then
+if [ $APACHE = 1 ]; then
 	sudo apt-get -y install apache2 php5 php5-mysql
 	
 	if [ ! -h /var/www ]; then 
@@ -41,34 +42,35 @@ if [ "$APACHE" = 1 ]; then
 		a2enmod rewrite
 		sed -i '/AllowOverride None/c AllowOverride All' /etc/apache2/sites-available/default
 		cat > /etc/apache2/sites-enabled/000-default.conf <<EOF
-	<VIRTUALHOST *:80>
-		ServerAdmin webmaster@localhost
-		ServerName $APACHE_NAME
-		DocumentRoot $APACHE_ROOT
-		<DIRECTORY />
-			Options FollowSymLinks
-			AllowOverride None
-		</DIRECTORY>
-		<DIRECTORY $APACHE_ROOT>
-			Options +FollowSymLinks
-			AllowOverride All
-		</DIRECTORY>
-		ErrorLog ${APACHE_LOG_DIR}/error.log
-		CustomLog ${APACHE_LOG_DIR}/access.log combined
-		SetEnv APP_ENV local
-		SetEnv DB_HOST $MYSQL_HOST
-		SetEnv DB_NAME $MYSQL_NAME
-		SetEnv DB_USER $MYSQL_USER
-		SetEnv DB_PASS $MYSQL_PASS
-	</VIRTUALHOST>
-	EOF
+<VIRTUALHOST *:80>
+	ServerAdmin webmaster@localhost
+	ServerName $APACHE_NAME
+	DocumentRoot $APACHE_ROOT
+	<DIRECTORY />
+		Options FollowSymLinks
+		AllowOverride None
+	</DIRECTORY>
+	<DIRECTORY $APACHE_ROOT>
+		Options +FollowSymLinks
+		AllowOverride All
+	</DIRECTORY>
+	ErrorLog ${APACHE_LOG_DIR}/error.log
+	CustomLog ${APACHE_LOG_DIR}/access.log combined
+	SetEnv APP_ENV local
+	SetEnv DB_HOST $MYSQL_HOST
+	SetEnv DB_NAME $MYSQL_NAME
+	SetEnv DB_USER $MYSQL_USER
+	SetEnv DB_PASS $MYSQL_PASS
+</VIRTUALHOST>
+EOF
 		service apache2 restart
 	fi
 fi
 
 # WORDPRESS
-if [ "$WORDPRESS" = 1 ]; then
-	if [ ! -d "$WORDPRESS_ROOT/wp-admin" ]; then
+if [ $WORDPRESS = 1 ]; then
+	if [ ! -d $WORDPRESS_ADMIN ]; then
+		mkdir $WORDPRESS_ROOT
 		cd $WORDPRESS_ROOT
 		wget http://wordpress.org/latest.tar.gz
 		tar xvf latest.tar.gz
@@ -78,4 +80,4 @@ if [ "$WORDPRESS" = 1 ]; then
 	fi
 fi
 
-sudo apt-get upgrade
+sudo apt-get upgrade -y --force-yes -qq
